@@ -13,8 +13,8 @@ const nextConfig: NextConfig = {
   },
   pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
   env: {
-    API_KEY: "b5205d2d3de6e7485e6f4008f1a2d371",
-    API_URL: "https://api.openweathermap.org/data/2.5"
+    API_KEY: process.env.API_KEY,
+    API_URL: process.env.API_URL,
   },
   /* config options here */
   images: {
