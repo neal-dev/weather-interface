@@ -1,30 +1,50 @@
 "use client";
-import Map from "@/components/Map";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { LatLng } from "leaflet";
 import { useGetWeatherByLatLong } from "@/hooks/queires/useGetWeather";
 import CountrySelector from "@/components/CountrySelector";
 import { useAtomValue } from "jotai";
 import { countryStateAtom } from "@/atoms/country";
 
+// Dynamic import for Map component to avoid SSR issues
+const Map = dynamic(() => import("@/components/Map"), {
+	ssr: false,
+	loading: () => <div className="w-full h-full bg-gray-200 animate-pulse" />,
+});
+
+interface LatLngType {
+	lat: number;
+	lng: number;
+}
+
 const Weather = () => {
-	const [location, setLocation] = useState<LatLng>(
-		new LatLng(13.7563, 100.5018)
-	);
+	const [location, setLocation] = useState<LatLngType | null>(null);
 	const { data: weatherData } = useGetWeatherByLatLong(location);
 	const country = useAtomValue(countryStateAtom);
 
-	const onMapSelect = (latlng: LatLng) => {
+	const onMapSelect = (latlng: LatLngType) => {
 		setLocation(latlng);
 	};
 
 	useEffect(() => {
-		if (country) {
-			setLocation(new LatLng(country.lat, country.lng));
+		// Initialize location on client side
+		if (typeof window !== "undefined") {
+			setLocation({ lat: 13.7563, lng: 100.5018 });
+		}
+	}, []);
+
+	useEffect(() => {
+		if (country && typeof window !== "undefined") {
+			setLocation({ lat: country.lat, lng: country.lng });
 		}
 	}, [country]);
 
 	const iconUrl = `http://openweathermap.org/img/wn/${weatherData?.weather[0].icon}@4x.png`;
+
+	if (!location) {
+		return <div className="w-full h-full bg-gray-200 animate-pulse" />;
+	}
+
 	return (
 		<div className="flex flex-col w-full h-full md:flex-row">
 			<div className="flex w-full h-1/2 relative md:w-1/2 md:h-full">
@@ -54,4 +74,8 @@ const Weather = () => {
 	);
 };
 
-export default Weather;
+// Export with dynamic import to avoid SSR issues
+export default dynamic(() => Promise.resolve(Weather), {
+	ssr: false,
+	loading: () => <div className="w-full h-full bg-gray-200 animate-pulse" />,
+});
