@@ -16,6 +16,7 @@
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.1",
     "jotai": "^2.11.1",
     "jotai-redux": "^0.3.0",
     "jotai-tanstack-query": "^0.9.0",
